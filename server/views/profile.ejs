@@ -1,0 +1,47 @@
+<div style="margin: 20px; float: left; border: 1px solid #ccc; background-color: #f9f9f9">
+	<table style="width: 400px" border="0px">
+		<tr>
+			<td style="width: 110px">
+				<a id="enableEditButton" class="small">edit</a>
+			</td>
+			<td>
+				<span float="left">welcome, <span style="color: Crimson"><b><%= user.username %></b></span> !</span>
+			</td>
+		</tr>
+		<tr>
+			<td style="width: 110px">
+				<a href="/upload" class="small">upload</a>
+			</td>
+			<td rowspan="4" style="vertical-align: top;">
+				<div id="userInfo">
+					<form action="/editUserInfo" id="editUserInfoForm" method="post">
+						name: <input id="userNameTextBox" <%='value=\'' + user.name + '\''%>  type="text"><br />
+						e-mail: <input id="userEmailTextBox" value=<%= user.email %>  type="text"><br />
+						<div id="userInfoEdit">
+							<div>
+								<input id="changePasswordCheckbox" type="checkbox">change password</a>
+							</div>
+							<div id="changePasswordView">
+								password: <input id="passwordTextBox" type="password"><br />
+								repeat: <input id="repeatTextBox" type="password"><br />
+							</div>
+							<div>	
+								<a id="applyProfileChangesButton" class="small">apply</a>
+								<a id="cancelEditButton" class="small">cancel</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td style="width: 110px; vertical-align: top;" >
+				<form action="/logout" id="logoutForm" method="post">
+					<input type="submit" value="Logout" class="small">
+				</form>
+			</td>
+			<td>
+			</td>
+		</tr>
+	</table>
+</div>

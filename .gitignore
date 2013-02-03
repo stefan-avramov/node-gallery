@@ -1,0 +1,5 @@
+/node_modules/
+/fileServer/node_modules/
+/server/tmp/*
+/server/public/files/*
+/server/public/jquery/
