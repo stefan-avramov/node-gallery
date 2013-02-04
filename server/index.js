@@ -7,6 +7,8 @@ var sessionStore = new MemoryStore();
 var Repository = require('./repository');
 var repo = new Repository();
 var fs = require('fs');
+var DataManager = require('./dataManager');
+var dataManager = new DataManager(repo, publicPath);
 
 var app = express();
 app.set('views', __dirname + '/views');
@@ -97,34 +99,61 @@ app.get('/upload', function(req, res) {
 	}
 });
 
+app.get('/view/:imageId', function(req, res) {
+	if (req.session.user) {
+		var imageId = req.params.imageId;
+		repo.getImage(imageId, function(err, image) {
+			if (!err) {
+				responseRender(res, 'imageView.ejs', {
+					user: req.session.user,
+					image: image
+				});
+			} else {
+				res.end();
+			}
+		});
+	} else {
+		res.redirect('/login');
+	}
+});
+
 app.post('/logout', function(req, res) {
 	req.session.destroy();
 	res.redirect('/');
 });
 
+app.post('/editImage', function(req, res) {
+	if (req.session.user) {
+		var imageId = req.body.imageId;
+		var name = req.body.name;
+		var description = req.body.description;
+
+		repo.updateImage(imageId, name, description, function(err, image) {
+			if (err) {
+				res.json({
+					error: err
+				});
+			} else {
+				res.json({
+					message: 'successfully updated image'
+				});
+			}
+		});
+	} else {
+		res.redirect('/login');
+	}
+});
+
 app.get('/profile', function(req, res) {
 	if (req.session.user) {
-		var filesDir = publicPath + '/files/' + req.session.user.username;
-		var fileNames = [];
-		fs.mkdir(filesDir, function(e) {
-			if(!e || (e && e.code === 'EEXIST')) {
-				fs.readdir(filesDir, function (err, list) {
-		            if (err) {
-		            	console.error(err);
-		            	res.end();
-		            } else {
-			            list.forEach(function (name) {
-			            	fileNames.push(name);
-			            });
-
-						responseRender(res, 'index.ejs', {
-							user: req.session.user,
-							fileNames: fileNames
-						});
-					}
-        		});
+		dataManager.getUserImages(req.session.user.username, function(err, images) {
+			if (!err) {
+				responseRender(res, 'index.ejs', {
+					user: req.session.user,
+					images: images
+				});
 			} else {
-				console.dir(e);
+				res.end();
 			}
 		});
 	} else {

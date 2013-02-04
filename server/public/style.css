@@ -5,3 +5,17 @@
 	font-size: 12px;
 	padding: 0px;
 }
+
+.imageContainer
+{
+	margin: 5px;
+	float: left;
+	
+	border: 1px #bbb solid;
+}
+
+.hover
+{
+	border: 1px solid black;
+	cursor: hand;
+}

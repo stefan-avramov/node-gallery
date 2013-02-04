@@ -29,7 +29,7 @@
             maxPostSize: 11000000000, // 11 GB
             minFileSize: 1,
             maxFileSize: 10000000000, // 10 GB
-            acceptFileTypes: /.+/i,
+            acceptFileTypes: /\.(gif|jpe?g|png)$/i,
             // Files not matched by this regular expression force a download dialog,
             // to prevent executing any scripts in the context of the service domain:
             safeFileTypes: /\.(gif|jpe?g|png)$/i,
@@ -247,7 +247,10 @@
             map = {},
             counter = 1,
             redirect,
-            finish = function () {
+            finish = function (err) {
+                if (err) {
+                    //console.error(err);
+                }
                 counter -= 1;
                 if (!counter) {
                     files.forEach(function (fileInfo) {

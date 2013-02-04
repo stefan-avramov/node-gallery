@@ -1,0 +1,37 @@
+<html>
+	<head>
+		<title>
+			View Image
+		</title>
+		<link href="../jquery/css/smoothness/jquery-ui-1.9.2.custom.min.css" rel="stylesheet" type="text/css"/>
+		<link href="../style.css" rel="stylesheet" type="text/css"/>
+		<script src="../jquery/js/jquery-1.8.3.js"></script>
+		<script src="../jquery/js/jquery-ui-1.9.2.custom.min.js"></script>
+		<script src="../js/messages.js"></script>
+		<script src="../js/imageView.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				$( "input[type=submit], a, button" ).button();
+			  });
+		</script>
+	</head>
+	<body background="../background.jpg">
+		<% include messages %>
+		
+		<div class="small" style="margin: 10px">
+			<a href='/profile'>back</a>
+		</div>
+		<div id="imageContainer" data-imageId=<%= image.imageId %>>
+		    <image style="border: 1px #bbb solid; max-height: 400px" src=<%='/files/' + user.username + '/' + image.imageId %>></div>
+		</div>
+		<div style="margin: 10px">
+			<div>Name:</div>
+			<input id="name" type="text" style="width: 300px" value=<%= image.name %>>
+			<div>Description:</div>
+			<div>
+				<textarea id="description" name="comments" cols="25" rows="5"><%= image.description %></textarea>
+			</div>
+			<a id="saveButton" class="small" style="margin: 10px">save</a>
+		</div>
+	</body>
+</html>

@@ -28,11 +28,11 @@
 			<tr>
 				<td>
 					<section style="max-height: 300px">
-						<% for (var index = 0; index < fileNames.length; index++) {
-							var fileName = fileNames[index]; %>
-							<div id="container" style="margin:5px; float: left; border: 1px #bbb solid">
-							    <div id="width">
-							        <div class="cell" style=<%= 'height:200px;width:200px;background-repeat:no-repeat;background:url(\'files/' + user.username + '/' + fileName + '\')'%>></div>
+						<% for (var index = 0; index < images.length; index++) {
+							var image = images[index]; %>
+							<div class="imageContainer" data-imageid=<%= image.imageId %>>
+							    <div class="imageWidth">
+							        <div class="cell" style=<%= 'height:200px;width:200px;background-repeat:no-repeat;background:url(\'files/' + user.username + '/' + image.imageId + '\')'%>><p style="color:#eee;background-color:black;margin:0px;width: 100%; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"><%= image.name %></p></div>
 							    </div>
 							</div>
 						<% } %>
