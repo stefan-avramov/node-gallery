@@ -13,7 +13,7 @@
 		
 		<script type="text/javascript">
 			$(function() {
-				$( "input[type=submit], a, button" ).button();
+				$("input[type=submit], a, button").button();
 			  });
 		</script>
 	</head>
@@ -27,12 +27,40 @@
 			</tr>
 			<tr>
 				<td>
-					<section style="max-height: 300px">
+					<div>
+						<div style="float: left">
+							<h2 style="margin: 0px"><%= user.username + '/' %></h2>
+						</div>
+						<div style="float: left" id="path">
+							<% if (path && path.length > 0) {
+								for (var i = 0; i < path.lenght; i++) {
+									var name = path[i]; %>
+									<h2 id=<%= 'parent' + i %> style="margin: 0px"><%= name %></h2>
+							<% }} %>
+						</div>
+						<div style="float: left" id="categories">
+							<% if (categories && categories.length > 0) { %>
+								<select id="categories0" class="combobox" style="width: 100px;">
+									<option value=""></option>
+									<% for (var i = 0; i < categories.length; i++) {
+										var category = categories[i]; %>
+										<option value=<%= category.id %>><%= category.name %></option>
+									<%}%>
+								</select>
+							<% } %>
+						</div>
+						<div style="clear:both;"></div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<section style="max-height: 300px" id="imagesContainer">
 						<% for (var index = 0; index < images.length; index++) {
 							var image = images[index]; %>
 							<div class="imageContainer" data-imageid=<%= image.imageId %>>
 							    <div class="imageWidth">
-							        <div class="cell" style=<%= 'height:200px;width:200px;background-repeat:no-repeat;background:url(\'files/' + user.username + '/' + image.imageId + '\')'%>><p style="color:#eee;background-color:black;margin:0px;width: 100%; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"><%= image.name %></p></div>
+							        <div class="cell" style=<%='background:url(\'files/' + user.username + '/' + image.imageId + '\')'%>><p class="imageName"><%= image.name %></p></div>
 							    </div>
 							</div>
 						<% } %>

@@ -103,13 +103,23 @@ app.get('/view/:imageId', function(req, res) {
 	if (req.session.user) {
 		var imageId = req.params.imageId;
 		repo.getImage(imageId, function(err, image) {
-			if (!err) {
-				responseRender(res, 'imageView.ejs', {
-					user: req.session.user,
-					image: image
-				});
-			} else {
+			if (err) {
+				console.error(err);
 				res.end();
+			} else {
+				var user = req.session.user;
+				repo.getTopUserCategories(user.username, function(err, categories) {
+					if (err) {
+						console.error(err);
+						res.end();
+					} else {
+						responseRender(res, 'imageView.ejs', {
+							user: user,
+							image: image,
+							categories: categories
+						});
+					}
+				});
 			}
 		});
 	} else {
@@ -122,13 +132,30 @@ app.post('/logout', function(req, res) {
 	res.redirect('/');
 });
 
+app.post('/addTopCategory', function(req, res) {
+	if (req.session.user){
+		var username = req.session.user.username;
+		var name = req.body.name;
+		repo.addTopCategory(username, name, function(err) {
+			if (err) {
+				res.json({error: err});
+			} else {
+				res.json({});
+			}
+		});
+	} else {
+		res.json({error: 'invalid session'});
+	}
+});
+
 app.post('/editImage', function(req, res) {
 	if (req.session.user) {
 		var imageId = req.body.imageId;
 		var name = req.body.name;
 		var description = req.body.description;
+		var category = req.body.category;
 
-		repo.updateImage(imageId, name, description, function(err, image) {
+		repo.updateImage(req.session.user.username, imageId, name, description, category, function(err, image) {
 			if (err) {
 				res.json({
 					error: err
@@ -144,13 +171,76 @@ app.post('/editImage', function(req, res) {
 	}
 });
 
+app.post('/changeCategory', function(req, res) {
+	if (req.session.user) {
+		var categoryId = req.body.categoryId;
+		var path = req.body.path;
+		var username = req.session.user.username;
+		if (!categoryId) {
+			repo.getTopUserCategories(username, function(err, categories) {
+				if (err) {
+					console.error(err);
+					res.json({error: 'error'});
+				} else {
+					repo.getUserImages(username, function(err, images) {
+						if (err) {
+							console.error(err);
+							res.json({error: 'error'});
+						} else {
+							res.json({
+								username: username,
+								images: images,
+								categories: categories,
+								path: []
+							});
+						}
+					});
+				}
+			});
+		} else {
+			repo.getCategoryImages(categoryId, function(err, images) {
+				if (!err) {
+					repo.getChildCategories(categoryId, function(err, categories) {
+						if (err) {
+							console.error(err);
+							res.end();
+						} else {
+	    					res.json({
+	    						username: username,
+								images: images,
+								categories: categories,
+								path: path
+							});
+						}
+					});
+				} else {
+					res.end();
+				}
+			});
+		}
+	} else {
+		res.redirect('/login');
+	}
+});
+
 app.get('/profile', function(req, res) {
 	if (req.session.user) {
-		dataManager.getUserImages(req.session.user.username, function(err, images) {
+		var username = req.session.user.username;
+		var path = req.body.path;
+		dataManager.getUserImages(username, function(err, images) {
 			if (!err) {
-				responseRender(res, 'index.ejs', {
-					user: req.session.user,
-					images: images
+				repo.getTopUserCategories(username, function(err, categories) {
+					if (err) {
+						console.error(err);
+						res.end();
+					} else {
+						responseRender(res, 'index.ejs', {
+							user: req.session.user,
+							images: images,
+							categories: categories,
+							path: path
+						});
+					}
 				});
 			} else {
 				res.end();

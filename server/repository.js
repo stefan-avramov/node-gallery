@@ -59,8 +59,9 @@ module.exports = function () {
 		});
 	};
 
-	this.updateImage = function(imageId, name, description, callback) {
+	this.updateImage = function(username, imageId, name, description, category, callback) {
 		var images = db.collection('images');
+		var categories = db.collection('categories');
 		var repo = this;
 
 		var newImage = {
@@ -68,19 +69,44 @@ module.exports = function () {
 				name: name,
 				description: description
 			};
-		images.findAndModify({
-			query: {
-				imageId : imageId
-			},
-			update: newImage
-		}, 
-		function(err, data) {
-			if (err) {
-				callback(err);	
-			} else {
-				callback(null, newImage);
+
+		var finish = function() {
+			images.findAndModify({
+				query: {
+					imageId : imageId
+				},
+				update: {$set: newImage}
+			}, 
+			function(err, data) {
+				if (err) {
+					callback(err);	
+				} else {
+					callback(null, data);
+				}
+			});
+		}
+
+		if (category == "") {
+			categories.findOne({name: username, parent: -1}, function(err, userCategory) {
+				if (err || !userCategory) {
+					if (err) {
+						console.dir(err);
+						callback(err);
+					} else {
+						console.error('no such category: ' + username + "(-1)");
+						callback('error');
+					}
+				} else {
+					newImage.category = userCategory._id.toString();
+					finish();
+				}
+			});
+		} else {
+			if (category) {
+				newImage.category = category;
 			}
-		});
+			finish();
+		}
 	};
 
 	this.initImage = function(username, imageId, callback) {
@@ -91,17 +117,160 @@ module.exports = function () {
 				console.error(err);
 				callback(err);
 			} else if (!image) {
-				image = {
-					imageId: imageId,
-					name: imageId,
-					description: ""
-				};
-				images.insert(image);
+				var categories = db.collection('categories');
+				categories.findOne({ name: username, parent: -1}, function(err, category) {
+					if (err || !category) {
+						if (err) {
+							console.err(err);
+							callback(err);
+						} else {
+							console.log("category " + category + " (-1) does not exist!");
+							callback("error");
+						}
+					} else {
+						image = {
+							imageId: imageId,
+							name: imageId,
+							description: "",
+							category: category._id 
+						};
+						images.insert(image);
+						callback(null, image);
+					}
+				});
+			} else {
+				callback(null, image);
 			}
-			callback(null, image);
 		});
 	};
 
+	this.addTopCategory = function(username, name, callback) {
+		var categories = db.collection('categories');
+		categories.findOne({name: username, parent: -1}, function(err, userCategory) {
+			if (err || !userCategory) {
+				if (err) {
+					console.dir(err);
+					callback(err);
+				} else {
+					console.error('no such category: ' + username + "(-1)");
+					callback('error');
+				}
+			} else {
+				categories.findOne({name: name, parent: userCategory._id.toString()}, function(err, category) {
+					if (err) {
+						callback(err);
+					} else {
+						if (!category) {
+							categories.insert({
+								name: name,
+								parent: userCategory._id.toString()
+							});
+						}
+						callback(null);
+					} 
+				});
+			}
+		});
+	};
+
+	this.getUserImages = function (username, callback) {
+		var images = db.collection('images');
+		var categories = db.collection('categories');
+		var result = [];
+
+		categories.findOne({name: username, parent: -1}, function(err, userCategory) {
+			if (err || !userCategory) {
+				if (err) {
+					console.error(err);
+				} else {
+					console.error("no category for user: " + username);
+				}
+				callback('error');
+			} else {
+				var categoryId = userCategory._id.toString();
+				images.find().forEach(
+					function (image) {
+						if (image.category == categoryId) {
+							result.push(image);
+						}
+					},
+					function(err) {
+				    	if (err) {
+				    		console.error(err);
+				    	}
+				    	callback(err, result);
+					}
+				);
+			}
+		});
+	};
+
+	this.getCategoryImages = function(categoryId, callback) {
+		var images = db.collection('images');
+		var result = [];
+		images.find().forEach(
+			function (image) {
+				if (image.category == categoryId) {
+					result.push(image);
+				}
+			},
+			function(err) {
+		    	if (err) {
+		    		console.error(err);
+		    	}
+		    	callback(err, result);
+			}
+		);
+	};
+
+	this.getChildCategories = function(categoryId, callback) {
+		var categories = db.collection('categories');
+		
+		var result = [];
+		categories.find().forEach(
+			function (category) {
+				if (category.parent == categoryId) {
+					result.push({id: categoryId, name: category.name});
+				}
+			},
+			function(err) {
+		    	if (err) {
+		    		console.error(err);
+		    	}
+		    	callback(err, result);
+			}
+		);
+	};
+
+	this.getTopUserCategories = function(username, callback) {
+		var categories = db.collection('categories');
+		
+		categories.findOne({name: username, parent: -1}, function(err, userCategory) {
+			if (err || !userCategory) {
+				if (err) {
+					console.error(err);
+				} else {
+					console.error("no category for user: " + username);
+				}
+				callback('error');
+			} else {
+				var result = [];
+				categories.find().forEach(
+					function (category) {
+						if (category.parent == userCategory._id.toString()) {
+							result.push({id: category._id.toString(), name: category.name});
+						}
+					},
+					function(err) {
+				    	if (err) {
+				    		console.error(err);
+				    	}
+				    	callback(err, result);
+					}
+				);
+			}
+		});
+	};
 
 	this.getImage = function (imageId, callback) {
 		var images = db.collection('images');
@@ -140,6 +309,12 @@ module.exports = function () {
 					password: password,
 					name: 'n/a',
 					email: 'n/a'
+				});
+				
+				var categories = db.collection('categories');
+				categories.insert({
+					name: username,
+					parent: -1
 				});
 				
 				callback(null);

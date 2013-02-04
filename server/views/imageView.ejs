@@ -25,9 +25,29 @@
 		    <image style="border: 1px #bbb solid; max-height: 400px" src=<%='/files/' + user.username + '/' + image.imageId %>></div>
 		</div>
 		<div style="margin: 10px">
-			<div>Name:</div>
+			<div>
+				<div>Category:</div>
+				<div style="float: left">
+					<h2 style="margin: 0px"><%= user.username + '/' %></h2>
+				</div>
+				<div style="float: left" id="categories">
+					<% if (categories.length > 0) { %>
+						<select id="categories0">
+							<option value=""></option>
+							<% for (var i = 0; i < categories.length; i++) {
+								var category = categories[i]; %>
+								<option value=<%= category.id %> <% if (category.id == image.category) {%>selected <%} %>   ><%= category.name %></option>
+							<%}%>
+						</select>
+					<% } %>
+				</div>
+				<input style="float: left;width:90px" id="newCategoryName" type="text" value=""/>
+				<a style="float: left" id="addCategoryButton" class="small">Add</a>
+				<div style="clear:both;"></div>
+			</div>
+			<div style="margin-top:10px">Name:</div>
 			<input id="name" type="text" style="width: 300px" value=<%= image.name %>>
-			<div>Description:</div>
+			<div style="margin-top:10px">Description:</div>
 			<div>
 				<textarea id="description" name="comments" cols="25" rows="5"><%= image.description %></textarea>
 			</div>
