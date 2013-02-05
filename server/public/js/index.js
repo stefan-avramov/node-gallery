@@ -23,7 +23,7 @@ $(function() {
 			var middleDiv = $('<div>').addClass('imageWidth');
 			var imageUrl = 'files/'+username+'/'+image.imageId;
 			var innerDiv = $('<div>').addClass('cell').attr('style', 'background:url(\'' + imageUrl + '\')');
-			var p = $('<p>').addClass('imageName').html(image.imageId);
+			var p = $('<p>').addClass('imageName').html('&nbsp;' + image.name);
 			innerDiv.append(p);
 			middleDiv.append(innerDiv);
 			outerDiv.append(middleDiv);

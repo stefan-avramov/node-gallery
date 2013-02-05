@@ -59,6 +59,13 @@ module.exports = function () {
 		});
 	};
 
+	this.deleteImage = function(fileId, callback) {
+		var images = db.collection('images');
+		images.remove({imageId: fileId}, function(err) {
+			callback(err);
+		});
+	};
+
 	this.updateImage = function(username, imageId, name, description, category, callback) {
 		var images = db.collection('images');
 		var categories = db.collection('categories');
@@ -130,6 +137,7 @@ module.exports = function () {
 					} else {
 						image = {
 							imageId: imageId,
+							username: username,
 							name: imageId,
 							description: "",
 							category: category._id 
@@ -175,34 +183,21 @@ module.exports = function () {
 
 	this.getUserImages = function (username, callback) {
 		var images = db.collection('images');
-		var categories = db.collection('categories');
 		var result = [];
 
-		categories.findOne({name: username, parent: -1}, function(err, userCategory) {
-			if (err || !userCategory) {
-				if (err) {
-					console.error(err);
-				} else {
-					console.error("no category for user: " + username);
+		images.find().forEach(
+			function (image) {
+				if (image.username == username) {
+					result.push(image);
 				}
-				callback('error');
-			} else {
-				var categoryId = userCategory._id.toString();
-				images.find().forEach(
-					function (image) {
-						if (image.category == categoryId) {
-							result.push(image);
-						}
-					},
-					function(err) {
-				    	if (err) {
-				    		console.error(err);
-				    	}
-				    	callback(err, result);
-					}
-				);
+			},
+			function(err) {
+		    	if (err) {
+		    		console.error(err);
+		    	}
+		    	callback(err, result);
 			}
-		});
+		);
 	};
 
 	this.getCategoryImages = function(categoryId, callback) {

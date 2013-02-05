@@ -60,7 +60,7 @@
 							var image = images[index]; %>
 							<div class="imageContainer" data-imageid=<%= image.imageId %>>
 							    <div class="imageWidth">
-							        <div class="cell" style=<%='background:url(\'files/' + user.username + '/' + image.imageId + '\')'%>><p class="imageName"><%= image.name %></p></div>
+							        <div class="cell" style=<%='background:url(\'files/' + user.username + '/' + image.imageId + '\')'%>><div class="imageName"><%= '&nbsp;' + image.name %></div></div>
 							    </div>
 							</div>
 						<% } %>

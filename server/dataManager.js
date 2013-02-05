@@ -15,7 +15,8 @@ module.exports = function (_repo, _publicPath) {
 		            	callback(err);
 		            } else {
 		            	var left = list.length;
-			            list.forEach(function (name) {
+		            	if (left == 0) callback(null, images);
+		            	else list.forEach(function (name) {
 			            	repo.initImage(username, name, function (err, image) {
 			            		if (!err) {
 			            			images.push(image);		

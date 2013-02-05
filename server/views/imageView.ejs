@@ -46,7 +46,7 @@
 				<div style="clear:both;"></div>
 			</div>
 			<div style="margin-top:10px">Name:</div>
-			<input id="name" type="text" style="width: 300px" value=<%= image.name %>>
+			<input id="name" type="text" style="width: 300px" <%='value=\'' + image.name + '\''%>>
 			<div style="margin-top:10px">Description:</div>
 			<div>
 				<textarea id="description" name="comments" cols="25" rows="5"><%= image.description %></textarea>

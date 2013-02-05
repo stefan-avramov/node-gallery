@@ -40,6 +40,13 @@ app.post('/login', function(req, res) {
 	});
 });
 
+app.get('/deleteFile/:fileId', function(req, res) {
+	var fileId = req.params.fileId;
+	repo.deleteImage(fileId, function (err) {
+		res.end();
+	});
+});
+
 app.post('/register', function(req, res) {
 	var username = req.body.username;
 	var password = req.body.password;

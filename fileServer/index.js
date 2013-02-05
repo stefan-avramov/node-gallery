@@ -12,6 +12,7 @@
 
 /*jslint nomen: true, regexp: true, unparam: true, stupid: true */
 /*global require, __dirname, unescape, console */
+var request = require('request');
 
 (function (port) {
     'use strict';
@@ -308,11 +309,17 @@
             fileName;
         if (handler.req.url.slice(0, options.uploadUrl.length) === options.uploadUrl) {
             fileName = path.basename(decodeURIComponent(handler.req.url));
-            fs.unlink(options.uploadDir + '/' + fileName, function (ex) {
-                Object.keys(options.imageVersions).forEach(function (version) {
-                    fs.unlink(options.uploadDir + '/' + version + '/' + fileName);
-                });
-                handler.callback({success: !ex});
+            request('http://localhost:3000/deleteFile/' + fileName, function (error, response, body) {
+                if (!error) {
+                    fs.unlink(options.uploadDir + '/' + fileName, function (ex) {
+                        Object.keys(options.imageVersions).forEach(function (version) {
+                            fs.unlink(options.uploadDir + '/' + version + '/' + fileName);
+                        });
+                        handler.callback({success: !ex});
+                    });
+                } else {
+                    console.error(error);
+                }
             });
         } else {
             handler.callback({success: false});
